@@ -23,6 +23,6 @@ echo
 
 echo "corral_set bootstrap_password=$(kubectl -n cattle-system get secret/bootstrap-secret -o json | jq -r '.data.bootstrapPassword' | base64 -d)"
 
-bootstrap_password=$(kubectl -n cattle-system get secret/bootstrap-secret -o json | jq -r '.data.bootstrapPassword' | base64 -d)
+#bootstrap_password=$(kubectl -n cattle-system get secret/bootstrap-secret -o json | jq -r '.data.bootstrapPassword' | base64 -d)
 
-corral_log "Rancher instance running at: https://$CORRAL_rancher_host/dashboard/?setup=$bootstrap_password"
+#corral_log "Rancher instance running at: https://$CORRAL_rancher_host/dashboard/?setup=$bootstrap_password"
