@@ -14,9 +14,9 @@ minor_version=$(echo "$CORRAL_kubernetes_version" | cut -d. -f2)
 kubectl create namespace cattle-system
 
 if [ "$minor_version" -gt 24 ]; then
-    helm upgrade --install rancher rancher-latest/rancher --namespace cattle-system --set global.cattle.psp.enabled=false --set hostname=$CORRAL_rancher_host --version=$CORRAL_rancher_version --set ingress.tls.source=secret --set letsEncrypt.email=$CORRAL_user_email
+    helm upgrade --install rancher rancher-latest/rancher --namespace cattle-system --set global.cattle.psp.enabled=false --set hostname=$CORRAL_rancher_host --version=$CORRAL_rancher_version --set ingress.tls.source=secret
 else
-    helm upgrade --install rancher rancher-latest/rancher --namespace cattle-system --set hostname=$CORRAL_rancher_host --version=$CORRAL_rancher_version --set ingress.tls.source=secret --set letsEncrypt.email=$CORRAL_user_email
+    helm upgrade --install rancher rancher-latest/rancher --namespace cattle-system --set hostname=$CORRAL_rancher_host --version=$CORRAL_rancher_version --set ingress.tls.source=secret
 fi
 
 kubectl -n cattle-system create secret tls tls-rancher-ingress --cert=/opt/corral/rancher/tls.crt --key=/opt/corral/rancher/tls.key

@@ -29,9 +29,6 @@ variables:
   registry_key:
     type: string
     description: "domain certificate key"
-  user_email:
-    type: string
-    description: "User email for LE helm installation"
 commands:
   - command: /opt/corral/rancher/preflight.sh
     node_pools:
