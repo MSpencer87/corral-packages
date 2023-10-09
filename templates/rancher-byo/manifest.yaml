@@ -1,0 +1,44 @@
+name: rancher-byo
+description: Install rancher on the local kubernetes cluster.
+variables:
+  rancher_version:
+    type: string
+    description: "Specify rancher version to install. Defaults to latest stable version."
+  rancher_image_tag:
+    type: string
+    description: "Specify rancher image tag for the latest commit/version of rancher."
+  bootstrap_password:
+    readOnly: true
+    type: string
+    description: "Initial password for the rancher `admin` user."
+  rancher_host:
+    readOnly: true
+    type: string
+    description: "Host of newly created rancher instance."
+  rancher_url:
+    readOnly: true
+    type: string
+    description: "Host of newly created rancher instance."
+  registry_fqdn:
+    type: string
+    optional: true
+    description: "The registry fqdn"
+  registry_cert:
+    type: string
+    description: "domain certificate"
+  registry_key:
+    type: string
+    description: "domain certificate key"
+  user_email:
+    type: string
+    description: "User email for LE helm installation"
+commands:
+  - command: /opt/corral/rancher/preflight.sh
+    node_pools:
+      - bastion
+  - command: /opt/corral/rancher/install-rancher-valid.sh
+    node_pools:
+      - bastion
+  - command: /opt/corral/rancher/wait-for-password.sh
+    node_pools:
+      - bastion

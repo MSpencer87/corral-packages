@@ -1,0 +1,17 @@
+manifest:
+  name: rancher-byo
+  description: rancher-byo
+  variables:
+    server_count:
+      default: 1
+templates:
+  - aws/cluster_nodes
+  - rke2
+  - rancher-byo
+variables:
+  cni:
+    - calico
+  kubernetes_version:
+    - v1.25.14+rke2r1
+  rancher_version:
+    - 2.7.7
