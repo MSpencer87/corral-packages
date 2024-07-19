@@ -8,7 +8,6 @@ cluster-init: true
 cni: ${CORRAL_cni}
 tls-san:
   - ${CORRAL_api_host}
-  - ${CORRAL_kube_api_host}
 "
 
 mkdir -p /etc/rancher/k3s

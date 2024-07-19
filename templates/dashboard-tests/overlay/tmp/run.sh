@@ -1,9 +1,6 @@
 #!/bin/bash
-
 shopt -s extglob
 set -x
-
-/tmp/configure.sh
 
 function corral_set() {
     echo "corral_set $1=$2"
@@ -37,25 +34,14 @@ build_image () {
     dashboard_branch=$1
     git clone -b "${dashboard_branch}" \
       "${GITHUB_URL}${CORRAL_dashboard_repo}" ${HOME}/dashboard
+    echo $CORRAL_imported_kubeconfig | base64 -d > ${HOME}/dashboard/imported_config
+    cat ${HOME}/dashboard/imported_config
 
     if [[ "${dashboard_branch}" != "master" ]]; then
       rm -rf ${HOME}/dashboard/cypress/jenkins
       curl https://codeload.github.com/rancher/dashboard/tar.gz/master |  tar -xz --strip=2 dashboard-master/cypress/jenkins
       mv ${HOME}/jenkins ${HOME}/dashboard/cypress/
     fi
-
-    shopt -s nocasematch
-    if [[ "${CORRAL_create_initial_clusters}" == "no" ]]; then
-      cd ${HOME}
-      ENTRYPOINT_FILE_PATH="dashboard/cypress/jenkins"
-      sed -i.bak "/kubectl/d" "${ENTRYPOINT_FILE_PATH}/cypress.sh"
-      sed -i.bak "/imported_config/d" "${ENTRYPOINT_FILE_PATH}/Dockerfile.ci"
-      cat "${ENTRYPOINT_FILE_PATH}/cypress.sh"
-    else 
-      echo $CORRAL_imported_kubeconfig | base64 -d > ${HOME}/dashboard/imported_config
-      cat ${HOME}/dashboard/imported_config
-    fi
-    shopt -u nocasematch
 
     if [ -f "${NODEJS_FILE}" ]; then rm -r "${NODEJS_FILE}"; fi
     curl -L --silent -o "${NODEJS_FILE}" \
@@ -94,6 +80,7 @@ build_image () {
     cd ${HOME}/dashboard
     sudo chown -R $(whoami) .
     echo "${PWD}"
+
 }
 
 rancher_init () {
@@ -173,13 +160,27 @@ if [ ${CORRAL_rancher_type} = "existing" ]; then
     TEST_BASE_URL="https://${CORRAL_rancher_host}/dashboard"
 
     echo "Custom key: $CORRAL_custom_node_key"
-     
-    docker run --name "${CORRAL_rancher_host}" --env-file ${HOME}/.env -t \
+
+    docker run --name "${CORRAL_rancher_host}" -t \
+      -e CYPRESS_VIDEO=false \
+      -e CYPRESS_VIEWPORT_WIDTH="${VIEWPORT_WIDTH}" \
+      -e CYPRESS_VIEWPORT_HEIGHT="${VIEWPORT_HEIGHT}" \
+      -e TEST_BASE_URL=${TEST_BASE_URL} \
+      -e TEST_USERNAME=${CORRAL_rancher_username} \
+      -e TEST_PASSWORD="${CORRAL_rancher_password}" \
+      -e TEST_SKIP_SETUP=true \
+      -e TEST_SKIP=setup \
+      -e AWS_ACCESS_KEY_ID=${CORRAL_aws_access_key} \
+      -e AWS_SECRET_ACCESS_KEY=${CORRAL_aws_secret_key} \
+      -e AZURE_CLIENT_ID=${CORRAL_azure_client_id} \
+      -e AZURE_CLIENT_SECRET=${CORRAL_azure_client_secret} \
+      -e AZURE_AKS_SUBSCRIPTION_ID=${CORRAL_azure_subscription_id} \
+      -e CUSTOM_NODE_IP="${CORRAL_custom_node_ip}" \
+      -e CUSTOM_NODE_KEY="${CORRAL_custom_node_key}" \
       -v "${HOME}":/e2e \
       -w /e2e dashboard-test
 
     exit_code=$?
-
 elif  [ ${CORRAL_rancher_type} = "recurring" ]; then
     TEST_USERNAME="admin"
     rancher_init ${CORRAL_rancher_host} ${CORRAL_rancher_host} ${CORRAL_rancher_password}
@@ -190,13 +191,26 @@ elif  [ ${CORRAL_rancher_type} = "recurring" ]; then
 
     case "${CORRAL_cypress_tags}" in
         *"@standardUser"* )
-            sed -i.bak '/TEST_USERNAME/d' ${HOME}/.env
-            echo TEST_USERNAME="standard_user" >> .env
-            cat ${HOME}/.env
+            rancher_username="standard_user"
             ;;
     esac
 
-    docker run --name "${CORRAL_rancher_host}" --env-file ${HOME}/.env -t \
+    docker run --name "${CORRAL_rancher_host}" -t \
+      -e CYPRESS_VIDEO=false \
+      -e CYPRESS_VIEWPORT_WIDTH="${VIEWPORT_WIDTH}" \
+      -e CYPRESS_VIEWPORT_HEIGHT="${VIEWPORT_HEIGHT}" \
+      -e TEST_BASE_URL="${TEST_BASE_URL}" \
+      -e TEST_USERNAME="${rancher_username}" \
+      -e TEST_PASSWORD="${CORRAL_rancher_password}" \
+      -e TEST_SKIP_SETUP=true \
+      -e TEST_SKIP=setup \
+      -e AWS_ACCESS_KEY_ID=${CORRAL_aws_access_key} \
+      -e AWS_SECRET_ACCESS_KEY=${CORRAL_aws_secret_key} \
+      -e AZURE_CLIENT_ID=${CORRAL_azure_client_id} \
+      -e AZURE_CLIENT_SECRET=${CORRAL_azure_client_secret} \
+      -e AZURE_AKS_SUBSCRIPTION_ID=${CORRAL_azure_subscription_id} \
+      -e CUSTOM_NODE_IP="${CORRAL_custom_node_ip}" \
+      -e CUSTOM_NODE_KEY="${CORRAL_custom_node_key}" \
       -v "${HOME}":/e2e \
       -w /e2e dashboard-test
 

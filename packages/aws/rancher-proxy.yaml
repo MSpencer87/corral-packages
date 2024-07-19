@@ -1,21 +1,19 @@
 manifest:
-  name: rancher-airgap
-  description: rancher-airgap
+  name: rancher-proxy
+  description: rancher-proxy
   variables:
     server_count:
       default: 1
-    registry_auth:
-      default: disabled
 templates:
   - aws/registry_nodes
   - aws/cluster_nodes
-  - registry-standalone
+  - proxy-standalone
   - rke2
-  - rancher-airgap
+  - rancher-proxy
 variables:
   cni:
     - calico
-  airgap_setup:
+  proxy_setup:
     - true
   docker_compose_version:
     - 2.15.1

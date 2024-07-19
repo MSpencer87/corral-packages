@@ -16,11 +16,12 @@ mkdir ~/.kube
 echo "${CORRAL_kubeconfig}" | base64 -d > ~/.kube/config
 chmod 400 ~/.kube/config
 
-count=0
+RET=1
+COUNT=0
 
-until kubectl get nodes || [ $count -eq 3 ]; do
-    count=$((count + 1))
-    echo "Attempt $count failed. Retrying in 1 second..."
-    sleep 1
+until [ ${RET} -eq 0 ] && [ ${COUNT} -eq 2 ]; do
+	kubectl get nodes
+	RET=$?
+	sleep 5
+	COUNT=$((COUNT+1))
 done
-
