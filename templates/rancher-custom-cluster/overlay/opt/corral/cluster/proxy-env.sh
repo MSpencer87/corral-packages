@@ -81,9 +81,9 @@ ${aptenv}
 EOF
 
 #proxy settings for docker hub
+mkdir /home/ubuntu/.docker
 touch /home/ubuntu/.docker/config.json
 dockerenv="{
-	\"credsStore\": \"ecr-login\",
 	\"proxies\": {
    		\"default\": {
      			\"httpProxy\": \"http://${CORRAL_registry_private_ip}:3219\",
@@ -97,6 +97,7 @@ ${dockerenv}
 EOF
 
 #proxy settings for docker hub as root user
+mkdir ~/.docker
 touch /root/.docker/config.json
 cat > /root/.docker/config.json <<- EOF
 ${dockerenv}
