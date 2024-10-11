@@ -67,7 +67,7 @@ EOF
       user        = var.aws_ssh_user
       private_key = var.corral_private_key
       timeout     = "4m"
-      bastion_host = var.airgap_setup || var.proxy_setup ? var.registry_ip : null
+      bastion_host = var.airgap_setup || var.proxy_setup ? var.bastion_ip : null
       bastion_user = var.airgap_setup || var.proxy_setup ? "root" : null
    }
 
